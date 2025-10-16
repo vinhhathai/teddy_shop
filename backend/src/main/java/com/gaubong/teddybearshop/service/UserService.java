@@ -106,4 +106,17 @@ public class UserService {
         
         return passwordEncoder.matches(password, user.getPassword());
     }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public User createGoogleUser(User user) {
+        // For Google OAuth users, we don't encode the password since they won't use it
+        return userRepository.save(user);
+    }
+
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
 }

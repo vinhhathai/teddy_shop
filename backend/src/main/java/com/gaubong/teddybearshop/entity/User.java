@@ -44,6 +44,9 @@ public class User implements UserDetails {
     @Size(max = 255)
     private String address;
 
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Role role = Role.CUSTOMER;
@@ -122,6 +125,9 @@ public class User implements UserDetails {
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+
+    public String getGoogleId() { return googleId; }
+    public void setGoogleId(String googleId) { this.googleId = googleId; }
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }

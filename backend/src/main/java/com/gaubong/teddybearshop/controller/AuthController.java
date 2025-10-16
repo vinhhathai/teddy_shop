@@ -1,10 +1,12 @@
 package com.gaubong.teddybearshop.controller;
 
+import com.gaubong.teddybearshop.dto.GoogleOAuthRequest;
 import com.gaubong.teddybearshop.dto.JwtResponse;
 import com.gaubong.teddybearshop.dto.LoginRequest;
 import com.gaubong.teddybearshop.dto.SignupRequest;
 import com.gaubong.teddybearshop.entity.User;
 import com.gaubong.teddybearshop.security.JwtUtils;
+import com.gaubong.teddybearshop.service.GoogleOAuthService;
 import com.gaubong.teddybearshop.service.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -33,6 +35,9 @@ public class AuthController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    GoogleOAuthService googleOAuthService;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -100,6 +105,35 @@ public class AuthController {
             return ResponseEntity.ok("User registered successfully!");
         } catch (Exception e) {
             logger.error("POST /signup - Registration failed: {} - {}", e.getMessage(), signUpRequest.getEmail());
+            return ResponseEntity.badRequest()
+                    .body("Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> authenticateGoogleUser(@Valid @RequestBody GoogleOAuthRequest googleOAuthRequest) {
+        logger.info("POST /auth/google - Google OAuth authentication attempt");
+
+        try {
+            User user = googleOAuthService.authenticateGoogleUser(googleOAuthRequest.getIdToken());
+            
+            // Generate JWT token for the authenticated user
+            String jwt = jwtUtils.generateJwtToken(user);
+            
+            List<String> roles = user.getAuthorities().stream()
+                    .map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
+
+            logger.info("POST /auth/google - Google OAuth successful for user: {}", user.getEmail());
+
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                    user.getId(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getFullName(),
+                    roles));
+        } catch (Exception e) {
+            logger.error("POST /auth/google - Google OAuth failed: {}", e.getMessage());
             return ResponseEntity.badRequest()
                     .body("Error: " + e.getMessage());
         }
