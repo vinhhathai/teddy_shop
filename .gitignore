@@ -1,0 +1,32 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build files
+backend/target/
+backend/build/
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# Logs
+*.log
+backend/logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
